@@ -28,7 +28,7 @@ let obstacles;
 let gameOverFlag = false;
 
 function preload() {
-    this.load.image('background', 'assets/background.webp');
+    this.load.image('background', 'assets/background.png');
     this.load.image('chubbycorn', 'assets/chubbycorn.png');
     this.load.image('cupcake', 'assets/cupcake.png');
     this.load.image('carrot', 'assets/carrot.png');
@@ -38,6 +38,7 @@ function preload() {
 function create() {
     this.add.image(400, 300, 'background');
     player = this.physics.add.sprite(100, 450, 'chubbycorn');
+    player.setScale(0.1); // Adjusting the scale to fit the game
     player.setCollideWorldBounds(true);
 
     cupcakes = this.physics.add.group({
@@ -47,6 +48,7 @@ function create() {
     });
 
     cupcakes.children.iterate(function (child) {
+        child.setScale(0.1); // Adjusting the scale to fit the game
         child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
     });
 
@@ -56,6 +58,10 @@ function create() {
         key: 'obstacle',
         repeat: 3,
         setXY: { x: 600, y: 0, stepX: 200 }
+    });
+
+    obstacles.children.iterate(function (child) {
+        child.setScale(0.1); // Adjusting the scale to fit the game
     });
 
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
@@ -108,6 +114,7 @@ function update() {
         const x = 800;
         const y = Math.random() * 600;
         const carrot = carrots.create(x, y, 'carrot');
+        carrot.setScale(0.1); // Adjusting the scale to fit the game
         carrot.setVelocityX(-200);
     }
 }
