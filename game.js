@@ -59,6 +59,9 @@ function create() {
     this.physics.add.collider(player, carrots, hitCarrot, null, this);
     this.physics.add.collider(player, obstacles, hitObstacle, null, this);
 
+    // Check for player touching the floor
+    this.physics.add.collider(player, this.physics.world.bounds.bottom, hitGround, null, this);
+
     this.input.on('pointerdown', () => {
         if (!gameOverFlag) {
             player.setVelocityY(-200);
@@ -124,7 +127,7 @@ function update() {
         if (cupcake.x < -cupcake.width) {
             cupcake.x = 800 + Math.random() * 400;
         }
-        cupcake.y += Math.sin(cupcake.x / 20) * 2;
+        cupcake.y += Math.sin(cupcake.x / 50) * 10; // Hovering effect
     });
 
     Phaser.Actions.IncX(carrots.getChildren(), -2);
@@ -132,7 +135,7 @@ function update() {
         if (carrot.x < -carrot.width) {
             carrot.x = 800 + Math.random() * 400;
         }
-        carrot.y += Math.sin(carrot.x / 20) * 2;
+        carrot.y += Math.sin(carrot.x / 50) * 10; // Hovering effect
     });
 }
 
@@ -196,9 +199,11 @@ function generateCupcakesAndCarrots() {
     for (let i = 0; i < 5; i++) {
         let cupcake = cupcakes.create(800 + i * 200, Math.random() * 500, 'cupcake');
         cupcake.setScale(0.1); // Adjusting the scale to fit the game
+        cupcake.setVelocityX(-100); // Move horizontally
     }
     for (let i = 0; i < 5; i++) {
         let carrot = carrots.create(800 + i * 200, Math.random() * 500, 'carrot');
         carrot.setScale(0.1); // Adjusting the scale to fit the game
+        carrot.setVelocityX(-100); // Move horizontally
     }
 }
