@@ -26,6 +26,9 @@ let lives = 3;
 let livesText;
 let obstacles;
 let gameOverFlag = false;
+let background;
+let backgroundSpeed = 0.5;
+let scoreTimer;
 
 function preload() {
     this.load.image('background', 'assets/background.png');
@@ -36,33 +39,18 @@ function preload() {
 }
 
 function create() {
-    this.add.image(400, 300, 'background');
-    player = this.physics.add.sprite(100, 450, 'chubbycorn');
+    background = this.add.tileSprite(0, 0, 800, 600, 'background').setOrigin(0, 0);
+
+    player = this.physics.add.sprite(100, 300, 'chubbycorn');
     player.setScale(0.1); // Adjusting the scale to fit the game
     player.setCollideWorldBounds(true);
 
-    cupcakes = this.physics.add.group({
-        key: 'cupcake',
-        repeat: 5,
-        setXY: { x: 400, y: 0, stepX: 150 }
-    });
-
-    cupcakes.children.iterate(function (child) {
-        child.setScale(0.1); // Adjusting the scale to fit the game
-        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-    });
-
+    cupcakes = this.physics.add.group();
     carrots = this.physics.add.group();
+    obstacles = this.physics.add.group();
 
-    obstacles = this.physics.add.group({
-        key: 'obstacle',
-        repeat: 3,
-        setXY: { x: 600, y: 0, stepX: 200 }
-    });
-
-    obstacles.children.iterate(function (child) {
-        child.setScale(0.1); // Adjusting the scale to fit the game
-    });
+    generateObstacles();
+    generateCupcakesAndCarrots();
 
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
     livesText = this.add.text(16, 50, 'lives: 3', { fontSize: '32px', fill: '#000' });
@@ -70,7 +58,6 @@ function create() {
     this.physics.add.collider(player, cupcakes, collectCupcake, null, this);
     this.physics.add.collider(player, carrots, hitCarrot, null, this);
     this.physics.add.collider(player, obstacles, hitObstacle, null, this);
-    this.physics.add.collider(player, this.physics.world.bounds, hitGround, null, this);
 
     this.input.on('pointerdown', () => {
         if (!gameOverFlag) {
@@ -79,22 +66,51 @@ function create() {
     });
 
     this.scene.pause();
-    document.getElementById('startButton').addEventListener('click', () => {
+
+    const startButton = document.getElementById('startButton');
+    const restartButton = document.getElementById('restartButton');
+
+    startButton.style.position = 'absolute';
+    startButton.style.left = '50%';
+    startButton.style.top = '50%';
+    startButton.style.transform = 'translate(-50%, -50%)';
+
+    restartButton.style.position = 'absolute';
+    restartButton.style.left = '50%';
+    restartButton.style.top = '50%';
+    restartButton.style.transform = 'translate(-50%, -50%)';
+    restartButton.style.display = 'none';
+
+    startButton.addEventListener('click', () => {
         this.scene.resume();
-        document.getElementById('startButton').style.display = 'none';
+        startButton.style.display = 'none';
+        scoreTimer = setInterval(() => {
+            if (!gameOverFlag) {
+                score += 1;
+                scoreText.setText('score: ' + score);
+            }
+        }, 100);
     });
 
-    document.getElementById('restartButton').addEventListener('click', () => {
+    restartButton.addEventListener('click', () => {
         resetGame(this);
         this.scene.resume();
-        document.getElementById('restartButton').style.display = 'none';
+        restartButton.style.display = 'none';
+        scoreTimer = setInterval(() => {
+            if (!gameOverFlag) {
+                score += 1;
+                scoreText.setText('score: ' + score);
+            }
+        }, 100);
     });
 }
 
 function update() {
-    if (player.y > 600) {
-        endGame(this);
+    if (player.y >= 600) {
+        hitGround();
     }
+
+    background.tilePositionX += backgroundSpeed;
 
     Phaser.Actions.IncX(obstacles.getChildren(), -2);
     obstacles.children.iterate(function (obstacle) {
@@ -108,15 +124,16 @@ function update() {
         if (cupcake.x < -cupcake.width) {
             cupcake.x = 800 + Math.random() * 400;
         }
+        cupcake.y += Math.sin(cupcake.x / 20) * 2;
     });
 
-    if (Math.random() < 0.01) {
-        const x = 800;
-        const y = Math.random() * 600;
-        const carrot = carrots.create(x, y, 'carrot');
-        carrot.setScale(0.1); // Adjusting the scale to fit the game
-        carrot.setVelocityX(-200);
-    }
+    Phaser.Actions.IncX(carrots.getChildren(), -2);
+    carrots.children.iterate(function (carrot) {
+        if (carrot.x < -carrot.width) {
+            carrot.x = 800 + Math.random() * 400;
+        }
+        carrot.y += Math.sin(carrot.x / 20) * 2;
+    });
 }
 
 function collectCupcake(player, cupcake) {
@@ -138,12 +155,13 @@ function hitObstacle(player, obstacle) {
     endGame(this);
 }
 
-function hitGround(player, bounds) {
+function hitGround() {
     endGame(this);
 }
 
 function endGame(scene) {
     gameOverFlag = true;
+    clearInterval(scoreTimer);
     scene.physics.pause();
     player.setTint(0xff0000);
     scoreText.setText('Game Over! Final score: ' + score);
@@ -157,10 +175,30 @@ function resetGame(scene) {
     scoreText.setText('score: 0');
     livesText.setText('lives: 3');
     player.clearTint();
-    player.setPosition(100, 450);
+    player.setPosition(100, 300);
     scene.physics.resume();
     obstacles.clear(true, true);
     cupcakes.clear(true, true);
     carrots.clear(true, true);
-    create();
+    generateObstacles();
+    generateCupcakesAndCarrots();
+}
+
+function generateObstacles() {
+    for (let i = 0; i < 3; i++) {
+        let obstacle = obstacles.create(600 + i * 200, 500, 'obstacle');
+        obstacle.setScale(0.1); // Adjusting the scale to fit the game
+        obstacle.setImmovable(true);
+    }
+}
+
+function generateCupcakesAndCarrots() {
+    for (let i = 0; i < 5; i++) {
+        let cupcake = cupcakes.create(800 + i * 200, Math.random() * 500, 'cupcake');
+        cupcake.setScale(0.1); // Adjusting the scale to fit the game
+    }
+    for (let i = 0; i < 5; i++) {
+        let carrot = carrots.create(800 + i * 200, Math.random() * 500, 'carrot');
+        carrot.setScale(0.1); // Adjusting the scale to fit the game
+    }
 }
