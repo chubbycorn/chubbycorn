@@ -42,8 +42,9 @@ function create() {
     background = this.add.tileSprite(0, 0, 800, 600, 'background').setOrigin(0, 0);
 
     player = this.physics.add.sprite(100, 300, 'chubbycorn');
-    player.setScale(0.2); // Increase the scale to make the unicorn larger
+    player.setScale(0.5); // Increase the scale to make the unicorn larger
     player.setCollideWorldBounds(true);
+    player.body.onWorldBounds = true; // Enable world bounds collision
 
     cupcakes = this.physics.add.group();
     carrots = this.physics.add.group();
