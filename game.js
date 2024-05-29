@@ -150,6 +150,7 @@ function update() {
         if (cupcake.x < -cupcake.width) {
             cupcake.x = 800 + Math.random() * 400;
         }
+        cupcake.setVelocityY(0); // Prevent falling
         cupcake.y += Math.sin(cupcake.x / 50) * 10; // Hovering effect
     });
 
@@ -158,6 +159,7 @@ function update() {
         if (carrot.x < -carrot.width) {
             carrot.x = 800 + Math.random() * 400;
         }
+        carrot.setVelocityY(0); // Prevent falling
         carrot.y += Math.sin(carrot.x / 50) * 10; // Hovering effect
     });
 }
@@ -228,12 +230,14 @@ function generateObstacles() {
 function generateCupcakesAndCarrots() {
     for (let i = 0; i < 5; i++) {
         let cupcake = cupcakes.create(800 + i * 200, Math.random() * 500, 'cupcake');
-        cupcake.setScale(0.1); // Adjusting the scale to fit the game
+        cupcake.setScale(0.5); // Adjusting the scale to fit the game
+        cupcake.body.allowGravity = false; // Prevent gravity
         cupcake.setVelocityX(-gameSpeed); // Move horizontally
     }
     for (let i = 0; i < 5; i++) {
         let carrot = carrots.create(800 + i * 200, Math.random() * 500, 'carrot');
-        carrot.setScale(0.1); // Adjusting the scale to fit the game
+        carrot.setScale(0.5); // Adjusting the scale to fit the game
+        carrot.body.allowGravity = false; // Prevent gravity
         carrot.setVelocityX(-gameSpeed); // Move horizontally
     }
 }
