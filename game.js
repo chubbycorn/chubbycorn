@@ -128,7 +128,7 @@ function create() {
 }
 
 function update() {
-    if (player.y >= 600) {
+    if (player.y >= 600 && !gameOverFlag) {
         hitGround();
     }
 
