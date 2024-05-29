@@ -27,7 +27,7 @@ let livesText;
 let obstacles;
 let gameOverFlag = false;
 let background;
-let backgroundSpeed = 0.5;
+let backgroundSpeed = 2;
 let scoreTimer;
 let gameOverText;
 let finalScoreText;
@@ -110,7 +110,9 @@ function create() {
                 scoreText.setText('score: ' + score);
             }
         }, 100);
-        speedIncrementTimer = setInterval(increaseSpeed, 1000); // Increase speed every second
+        speedIncrementTimer = setInterval(() => {
+            increaseSpeed();
+        }, 1000); // Increase speed every second
     });
 
     restartButton.addEventListener('click', () => {
@@ -123,7 +125,9 @@ function create() {
                 scoreText.setText('score: ' + score);
             }
         }, 100);
-        speedIncrementTimer = setInterval(increaseSpeed, 1000); // Increase speed every second
+        speedIncrementTimer = setInterval(() => {
+            increaseSpeed();
+        }, 1000); // Increase speed every second
     });
 }
 
@@ -132,7 +136,7 @@ function update() {
         hitGround(this);
     }
 
-    background.tilePositionX += backgroundSpeed; // This line makes the background scroll
+    background.tilePositionX += backgroundSpeed / 100; // Update background speed
 
     Phaser.Actions.IncX(obstacles.getChildren(), -gameSpeed);
     obstacles.children.iterate(function (obstacle) {
@@ -197,6 +201,7 @@ function resetGame(scene) {
     gameOverFlag = false;
     score = 0;
     gameSpeed = 2; // Reset game speed
+    backgroundSpeed = 2; // Reset background speed
     lives = 3;
     scoreText.setText('score: 0');
     livesText.setText('lives: 3');
@@ -234,5 +239,6 @@ function generateCupcakesAndCarrots() {
 }
 
 function increaseSpeed() {
-    gameSpeed += 2 / 60; // Gradually increase speed over time
+    gameSpeed += 0.1; // Gradually increase speed over time
+    backgroundSpeed += 0.1; // Gradually increase background speed
 }
