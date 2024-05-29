@@ -29,6 +29,8 @@ let gameOverFlag = false;
 let background;
 let backgroundSpeed = 0.5;
 let scoreTimer;
+let gameOverText;
+let finalScoreText;
 
 function preload() {
     this.load.image('background', 'assets/background.png'); // Ensure this path is correct
@@ -55,6 +57,14 @@ function create() {
 
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
     livesText = this.add.text(16, 50, 'lives: 3', { fontSize: '32px', fill: '#000' });
+
+    gameOverText = this.add.text(400, 300, 'Game Over', { fontSize: '64px', fill: '#000' });
+    gameOverText.setOrigin(0.5);
+    gameOverText.setVisible(false);
+
+    finalScoreText = this.add.text(400, 400, 'Final Score: 0', { fontSize: '32px', fill: '#000' });
+    finalScoreText.setOrigin(0.5);
+    finalScoreText.setVisible(false);
 
     this.physics.add.collider(player, cupcakes, collectCupcake, null, this);
     this.physics.add.collider(player, carrots, hitCarrot, null, this);
@@ -173,6 +183,9 @@ function endGame(scene) {
     scene.physics.pause();
     player.setTint(0xff0000);
     scoreText.setText('Game Over! Final score: ' + score);
+    gameOverText.setVisible(true);
+    finalScoreText.setText('Final Score: ' + score);
+    finalScoreText.setVisible(true);
     document.getElementById('restartButton').style.display = 'inline';
 }
 
@@ -190,6 +203,8 @@ function resetGame(scene) {
     carrots.clear(true, true);
     generateObstacles();
     generateCupcakesAndCarrots();
+    gameOverText.setVisible(false);
+    finalScoreText.setVisible(false);
 }
 
 function generateObstacles() {
