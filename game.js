@@ -31,6 +31,8 @@ let backgroundSpeed = 0.5;
 let scoreTimer;
 let gameOverText;
 let finalScoreText;
+let gameSpeed = 2;
+let speedIncrementTimer;
 
 function preload() {
     this.load.image('background', 'assets/background.png'); // Ensure this path is correct
@@ -108,6 +110,7 @@ function create() {
                 scoreText.setText('score: ' + score);
             }
         }, 100);
+        speedIncrementTimer = setInterval(increaseSpeed, 1000); // Increase speed every second
     });
 
     restartButton.addEventListener('click', () => {
@@ -120,6 +123,7 @@ function create() {
                 scoreText.setText('score: ' + score);
             }
         }, 100);
+        speedIncrementTimer = setInterval(increaseSpeed, 1000); // Increase speed every second
     });
 }
 
@@ -130,14 +134,14 @@ function update() {
 
     background.tilePositionX += backgroundSpeed; // This line makes the background scroll
 
-    Phaser.Actions.IncX(obstacles.getChildren(), -2);
+    Phaser.Actions.IncX(obstacles.getChildren(), -gameSpeed);
     obstacles.children.iterate(function (obstacle) {
         if (obstacle.x < -obstacle.width) {
             obstacle.x = 800 + Math.random() * 400;
         }
     });
 
-    Phaser.Actions.IncX(cupcakes.getChildren(), -2);
+    Phaser.Actions.IncX(cupcakes.getChildren(), -gameSpeed);
     cupcakes.children.iterate(function (cupcake) {
         if (cupcake.x < -cupcake.width) {
             cupcake.x = 800 + Math.random() * 400;
@@ -145,7 +149,7 @@ function update() {
         cupcake.y += Math.sin(cupcake.x / 50) * 10; // Hovering effect
     });
 
-    Phaser.Actions.IncX(carrots.getChildren(), -2);
+    Phaser.Actions.IncX(carrots.getChildren(), -gameSpeed);
     carrots.children.iterate(function (carrot) {
         if (carrot.x < -carrot.width) {
             carrot.x = 800 + Math.random() * 400;
@@ -180,9 +184,9 @@ function hitGround() {
 function endGame(scene) {
     gameOverFlag = true;
     clearInterval(scoreTimer);
+    clearInterval(speedIncrementTimer);
     scene.physics.pause();
     player.setTint(0xff0000);
-    scoreText.setText('Game Over! Final score: ' + score);
     gameOverText.setVisible(true);
     finalScoreText.setText('Final Score: ' + score);
     finalScoreText.setVisible(true);
@@ -192,6 +196,7 @@ function endGame(scene) {
 function resetGame(scene) {
     gameOverFlag = false;
     score = 0;
+    gameSpeed = 2; // Reset game speed
     lives = 3;
     scoreText.setText('score: 0');
     livesText.setText('lives: 3');
@@ -219,11 +224,15 @@ function generateCupcakesAndCarrots() {
     for (let i = 0; i < 5; i++) {
         let cupcake = cupcakes.create(800 + i * 200, Math.random() * 500, 'cupcake');
         cupcake.setScale(0.1); // Adjusting the scale to fit the game
-        cupcake.setVelocityX(-100); // Move horizontally
+        cupcake.setVelocityX(-gameSpeed); // Move horizontally
     }
     for (let i = 0; i < 5; i++) {
         let carrot = carrots.create(800 + i * 200, Math.random() * 500, 'carrot');
         carrot.setScale(0.1); // Adjusting the scale to fit the game
-        carrot.setVelocityX(-100); // Move horizontally
+        carrot.setVelocityX(-gameSpeed); // Move horizontally
     }
+}
+
+function increaseSpeed() {
+    gameSpeed += 2 / 60; // Gradually increase speed over time
 }
