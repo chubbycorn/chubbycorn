@@ -73,11 +73,11 @@ function create() {
     this.physics.add.collider(player, obstacles, hitObstacle, null, this);
 
     // Check for player touching the floor
-    this.physics.world.on('worldbounds', function(body, up, down) {
+    this.physics.world.on('worldbounds', (body, up, down) => {
         if (down) {
-            hitGround();
+            hitGround(this);
         }
-    }, this);
+    });
 
     this.input.on('pointerdown', () => {
         if (!gameOverFlag) {
@@ -129,7 +129,7 @@ function create() {
 
 function update() {
     if (player.y >= 600 && !gameOverFlag) {
-        hitGround();
+        hitGround(this);
     }
 
     background.tilePositionX += backgroundSpeed; // This line makes the background scroll
@@ -177,8 +177,8 @@ function hitObstacle(player, obstacle) {
     endGame(this);
 }
 
-function hitGround() {
-    endGame(this);
+function hitGround(scene) {
+    endGame(scene);
 }
 
 function endGame(scene) {
