@@ -16,7 +16,7 @@ const config = {
     }
 };
 
-const game = new Phaser.Game(config);
+let game = new Phaser.Game(config);
 let player;
 let cupcakes;
 let carrots;
@@ -25,9 +25,10 @@ let scoreText;
 let lives = 3;
 let livesText;
 let obstacles;
+let gameOverFlag = false;
 
 function preload() {
-    this.load.image('background', 'assets/background.png');
+    this.load.image('background', 'assets/background.webp');
     this.load.image('chubbycorn', 'assets/chubbycorn.png');
     this.load.image('cupcake', 'assets/cupcake.png');
     this.load.image('carrot', 'assets/carrot.png');
@@ -63,15 +64,30 @@ function create() {
     this.physics.add.collider(player, cupcakes, collectCupcake, null, this);
     this.physics.add.collider(player, carrots, hitCarrot, null, this);
     this.physics.add.collider(player, obstacles, hitObstacle, null, this);
+    this.physics.add.collider(player, this.physics.world.bounds, hitGround, null, this);
 
     this.input.on('pointerdown', () => {
-        player.setVelocityY(-200);
+        if (!gameOverFlag) {
+            player.setVelocityY(-200);
+        }
+    });
+
+    this.scene.pause();
+    document.getElementById('startButton').addEventListener('click', () => {
+        this.scene.resume();
+        document.getElementById('startButton').style.display = 'none';
+    });
+
+    document.getElementById('restartButton').addEventListener('click', () => {
+        resetGame(this);
+        this.scene.resume();
+        document.getElementById('restartButton').style.display = 'none';
     });
 }
 
 function update() {
     if (player.y > 600) {
-        gameOver(this);
+        endGame(this);
     }
 
     Phaser.Actions.IncX(obstacles.getChildren(), -2);
@@ -107,17 +123,37 @@ function hitCarrot(player, carrot) {
     lives -= 1;
     livesText.setText('lives: ' + lives);
     if (lives <= 0) {
-        gameOver(this);
+        endGame(this);
     }
 }
 
 function hitObstacle(player, obstacle) {
-    gameOver(this);
+    endGame(this);
 }
 
-function gameOver(scene) {
+function hitGround(player, bounds) {
+    endGame(this);
+}
+
+function endGame(scene) {
+    gameOverFlag = true;
     scene.physics.pause();
     player.setTint(0xff0000);
-    player.anims.play('turn');
     scoreText.setText('Game Over! Final score: ' + score);
+    document.getElementById('restartButton').style.display = 'inline';
+}
+
+function resetGame(scene) {
+    gameOverFlag = false;
+    score = 0;
+    lives = 3;
+    scoreText.setText('score: 0');
+    livesText.setText('lives: 3');
+    player.clearTint();
+    player.setPosition(100, 450);
+    scene.physics.resume();
+    obstacles.clear(true, true);
+    cupcakes.clear(true, true);
+    carrots.clear(true, true);
+    create();
 }
