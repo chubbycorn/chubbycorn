@@ -31,7 +31,7 @@ let backgroundSpeed = 0.5;
 let scoreTimer;
 
 function preload() {
-    this.load.image('background', 'assets/background.png');
+    this.load.image('background', 'assets/background.png'); // Ensure this path is correct
     this.load.image('chubbycorn', 'assets/chubbycorn.png');
     this.load.image('cupcake', 'assets/cupcake.png');
     this.load.image('carrot', 'assets/carrot.png');
@@ -42,7 +42,7 @@ function create() {
     background = this.add.tileSprite(0, 0, 800, 600, 'background').setOrigin(0, 0);
 
     player = this.physics.add.sprite(100, 300, 'chubbycorn');
-    player.setScale(0.1); // Adjusting the scale to fit the game
+    player.setScale(0.2); // Increase the scale to make the unicorn larger
     player.setCollideWorldBounds(true);
 
     cupcakes = this.physics.add.group();
@@ -60,7 +60,11 @@ function create() {
     this.physics.add.collider(player, obstacles, hitObstacle, null, this);
 
     // Check for player touching the floor
-    this.physics.add.collider(player, this.physics.world.bounds.bottom, hitGround, null, this);
+    this.physics.world.on('worldbounds', function(body, up, down) {
+        if (down) {
+            hitGround();
+        }
+    }, this);
 
     this.input.on('pointerdown', () => {
         if (!gameOverFlag) {
@@ -113,7 +117,7 @@ function update() {
         hitGround();
     }
 
-    background.tilePositionX += backgroundSpeed;
+    background.tilePositionX += backgroundSpeed; // This line makes the background scroll
 
     Phaser.Actions.IncX(obstacles.getChildren(), -2);
     obstacles.children.iterate(function (obstacle) {
