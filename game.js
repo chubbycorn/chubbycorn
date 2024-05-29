@@ -136,7 +136,7 @@ function update() {
         hitGround(this);
     }
 
-    background.tilePositionX += backgroundSpeed / 100; // Update background speed
+    background.tilePositionX += backgroundSpeed; // Update background speed
 
     Phaser.Actions.IncX(obstacles.getChildren(), -gameSpeed);
     obstacles.children.iterate(function (obstacle) {
