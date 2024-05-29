@@ -154,7 +154,7 @@ function update() {
     Phaser.Actions.IncX(cupcakes.getChildren(), -gameSpeed);
     cupcakes.children.iterate(function (cupcake) {
         if (cupcake.x < -cupcake.width) {
-            cupcake.x = 800 + Math.random() * 400;
+            cupcake.destroy();
         }
         cupcake.setVelocityY(0); // Prevent falling
         cupcake.y += Math.sin(cupcake.x / 50) * 10; // Hovering effect
@@ -163,7 +163,7 @@ function update() {
     Phaser.Actions.IncX(carrots.getChildren(), -gameSpeed);
     carrots.children.iterate(function (carrot) {
         if (carrot.x < -carrot.width) {
-            carrot.x = 800 + Math.random() * 400;
+            carrot.destroy();
         }
         carrot.setVelocityY(0); // Prevent falling
         carrot.y += Math.sin(carrot.x / 50) * 10; // Hovering effect
@@ -244,7 +244,6 @@ function generateCandyStick() {
     let candyStick = obstacles.create(800, yPosition, 'candy_stick');
     candyStick.displayHeight = height;
     candyStick.setOrigin(0, yPosition === 0 ? 0 : 1); // Adjust origin based on position
-    candyStick.setScale(0.5); // Adjusting the scale to fit the game
     candyStick.body.allowGravity = false; // Prevent gravity
     candyStick.setVelocityX(-backgroundSpeed); // Move with the background
 }
