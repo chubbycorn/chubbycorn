@@ -33,6 +33,7 @@ let gameOverText;
 let finalScoreText;
 let gameSpeed = 2;
 let speedIncrementTimer;
+let spawnTimer;
 
 function preload() {
     this.load.image('background', 'assets/background.png'); // Ensure this path is correct
@@ -55,7 +56,6 @@ function create() {
     obstacles = this.physics.add.group();
 
     generateObstacles();
-    generateCupcakesAndCarrots();
 
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
     livesText = this.add.text(16, 50, 'lives: 3', { fontSize: '32px', fill: '#000' });
@@ -113,6 +113,9 @@ function create() {
         speedIncrementTimer = setInterval(() => {
             increaseSpeed();
         }, 1000); // Increase speed every second
+        spawnTimer = setInterval(() => {
+            generateCupcakeOrCarrot();
+        }, Phaser.Math.Between(2000, 5000)); // Randomize between 2 to 5 seconds
     });
 
     restartButton.addEventListener('click', () => {
@@ -128,6 +131,9 @@ function create() {
         speedIncrementTimer = setInterval(() => {
             increaseSpeed();
         }, 1000); // Increase speed every second
+        spawnTimer = setInterval(() => {
+            generateCupcakeOrCarrot();
+        }, Phaser.Math.Between(2000, 5000)); // Randomize between 2 to 5 seconds
     });
 }
 
@@ -191,6 +197,7 @@ function endGame(scene) {
     gameOverFlag = true;
     clearInterval(scoreTimer);
     clearInterval(speedIncrementTimer);
+    clearInterval(spawnTimer);
     scene.physics.pause();
     player.setTint(0xff0000);
     gameOverText.setVisible(true);
@@ -214,7 +221,6 @@ function resetGame(scene) {
     cupcakes.clear(true, true);
     carrots.clear(true, true);
     generateObstacles();
-    generateCupcakesAndCarrots();
     gameOverText.setVisible(false);
     finalScoreText.setVisible(false);
 }
@@ -227,15 +233,14 @@ function generateObstacles() {
     }
 }
 
-function generateCupcakesAndCarrots() {
-    for (let i = 0; i < 5; i++) {
-        let cupcake = cupcakes.create(800 + i * 200, Math.random() * 500, 'cupcake');
+function generateCupcakeOrCarrot() {
+    if (Phaser.Math.Between(0, 1) === 0) {
+        let cupcake = cupcakes.create(800, Phaser.Math.Between(50, 550), 'cupcake');
         cupcake.setScale(0.5); // Adjusting the scale to fit the game
         cupcake.body.allowGravity = false; // Prevent gravity
         cupcake.setVelocityX(-gameSpeed); // Move horizontally
-    }
-    for (let i = 0; i < 5; i++) {
-        let carrot = carrots.create(800 + i * 200, Math.random() * 500, 'carrot');
+    } else {
+        let carrot = carrots.create(800, Phaser.Math.Between(50, 550), 'carrot');
         carrot.setScale(0.5); // Adjusting the scale to fit the game
         carrot.body.allowGravity = false; // Prevent gravity
         carrot.setVelocityX(-gameSpeed); // Move horizontally
