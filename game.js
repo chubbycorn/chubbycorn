@@ -40,7 +40,7 @@ function preload() {
     this.load.image('chubbycorn', 'assets/chubbycorn.png');
     this.load.image('cupcake', 'assets/cupcake.png');
     this.load.image('carrot', 'assets/carrot.png');
-    this.load.image('obstacle', 'assets/obstacle.png');
+    this.load.image('candy_stick', 'assets/candy_stick.png'); // New candy stick image
 }
 
 function create() {
@@ -54,8 +54,6 @@ function create() {
     cupcakes = this.physics.add.group();
     carrots = this.physics.add.group();
     obstacles = this.physics.add.group();
-
-    generateObstacles();
 
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
     livesText = this.add.text(16, 50, 'lives: 3', { fontSize: '32px', fill: '#000' });
@@ -115,6 +113,7 @@ function create() {
         }, 1000); // Increase speed every second
         spawnTimer = setInterval(() => {
             generateCupcakeOrCarrot();
+            generateCandyStick();
         }, Phaser.Math.Between(2000, 5000)); // Randomize between 2 to 5 seconds
     });
 
@@ -133,6 +132,7 @@ function create() {
         }, 1000); // Increase speed every second
         spawnTimer = setInterval(() => {
             generateCupcakeOrCarrot();
+            generateCandyStick();
         }, Phaser.Math.Between(2000, 5000)); // Randomize between 2 to 5 seconds
     });
 }
@@ -144,10 +144,10 @@ function update() {
 
     background.tilePositionX += backgroundSpeed; // Update background speed
 
-    Phaser.Actions.IncX(obstacles.getChildren(), -gameSpeed);
+    Phaser.Actions.IncX(obstacles.getChildren(), -backgroundSpeed); // Move with the background
     obstacles.children.iterate(function (obstacle) {
         if (obstacle.x < -obstacle.width) {
-            obstacle.x = 800 + Math.random() * 400;
+            obstacle.destroy(); // Remove off-screen obstacles
         }
     });
 
@@ -220,17 +220,8 @@ function resetGame(scene) {
     obstacles.clear(true, true);
     cupcakes.clear(true, true);
     carrots.clear(true, true);
-    generateObstacles();
     gameOverText.setVisible(false);
     finalScoreText.setVisible(false);
-}
-
-function generateObstacles() {
-    for (let i = 0; i < 3; i++) {
-        let obstacle = obstacles.create(600 + i * 200, 500, 'obstacle');
-        obstacle.setScale(0.1); // Adjusting the scale to fit the game
-        obstacle.setImmovable(true);
-    }
 }
 
 function generateCupcakeOrCarrot() {
@@ -245,6 +236,17 @@ function generateCupcakeOrCarrot() {
         carrot.body.allowGravity = false; // Prevent gravity
         carrot.setVelocityX(-gameSpeed); // Move horizontally
     }
+}
+
+function generateCandyStick() {
+    let height = Phaser.Math.Between(120, 360); // 20% to 60% of 600px height
+    let yPosition = Phaser.Math.Between(0, 1) === 0 ? 0 : 600 - height; // Randomly from top or bottom
+    let candyStick = obstacles.create(800, yPosition, 'candy_stick');
+    candyStick.displayHeight = height;
+    candyStick.setOrigin(0, yPosition === 0 ? 0 : 1); // Adjust origin based on position
+    candyStick.setScale(0.5); // Adjusting the scale to fit the game
+    candyStick.body.allowGravity = false; // Prevent gravity
+    candyStick.setVelocityX(-backgroundSpeed); // Move with the background
 }
 
 function increaseSpeed() {
