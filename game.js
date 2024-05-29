@@ -220,6 +220,7 @@ function resetGame(scene) {
     obstacles.clear(true, true);
     cupcakes.clear(true, true);
     carrots.clear(true, true);
+    generateObstacles(); // Regenerate obstacles at the start
     gameOverText.setVisible(false);
     finalScoreText.setVisible(false);
 }
@@ -241,7 +242,7 @@ function generateCupcakeOrCarrot() {
 function generateCandyStick() {
     let height = Phaser.Math.Between(120, 360); // 20% to 60% of 600px height
     let yPosition = Phaser.Math.Between(0, 1) === 0 ? 0 : 600 - height; // Randomly from top or bottom
-    let candyStick = obstacles.create(800, yPosition, 'candy_stick');
+    let candyStick = obstacles.create(800, yPosition === 0 ? 0 : 600, 'candy_stick');
     candyStick.displayHeight = height;
     candyStick.setOrigin(0, yPosition === 0 ? 0 : 1); // Adjust origin based on position
     candyStick.body.allowGravity = false; // Prevent gravity
