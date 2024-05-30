@@ -23,7 +23,6 @@ let carrots;
 let score = 0;
 let scoreText;
 let lives = 3;
-let livesText;
 let hearts = [];
 let obstacles;
 let gameOverFlag = false;
@@ -70,12 +69,7 @@ function create() {
     finalScoreText.setVisible(false);
 
     // Create hearts for lives
-    for (let i = 0; i < lives; i++) {
-        let heart = this.add.image(16 + i * 32, 64, 'heart');
-        heart.setScale(0.5);
-        heart.setDepth(10);
-        hearts.push(heart);
-    }
+    updateLivesDisplay(this);
 
     this.physics.add.overlap(player, cupcakes, collectCupcake, null, this);
     this.physics.add.overlap(player, carrots, hitCarrot, null, this);
@@ -204,7 +198,7 @@ function hitCarrot(player, carrot) {
     carrot.disableBody(true, true);
     displayScoreText(this, '-1', carrot.x, carrot.y);
     lives -= 1;
-    updateLivesDisplay();
+    updateLivesDisplay(this);
     if (lives <= 0) {
         endGame(this);
     }
@@ -240,7 +234,7 @@ function resetGame(scene) {
     backgroundSpeed = 2; // Reset background speed
     lives = 3;
     scoreText.setText('score: 0');
-    updateLivesDisplay(); // Reset lives display
+    updateLivesDisplay(scene); // Reset lives display
     player.clearTint();
     player.setPosition(100, 300);
     scene.physics.resume();
@@ -308,11 +302,11 @@ function displayScoreText(scene, text, x, y) {
     });
 }
 
-function updateLivesDisplay() {
+function updateLivesDisplay(scene) {
     hearts.forEach(heart => heart.destroy());
     hearts = [];
     for (let i = 0; i < lives; i++) {
-        let heart = game.add.image(16 + i * 32, 64, 'heart');
+        let heart = scene.add.image(16 + i * 32, 64, 'heart');
         heart.setScale(0.5);
         heart.setDepth(10);
         hearts.push(heart);
