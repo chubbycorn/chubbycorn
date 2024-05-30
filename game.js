@@ -144,15 +144,15 @@ function update() {
 
     background.tilePositionX += backgroundSpeed; // Update background speed
 
-    Phaser.Actions.IncX(obstacles.getChildren(), -backgroundSpeed); // Move with the background
-    obstacles.children.iterate(function (obstacle) {
+    obstacles.getChildren().forEach(function (obstacle) {
+        obstacle.x -= backgroundSpeed; // Move with the background
         if (obstacle.x < -obstacle.width) {
             obstacle.destroy(); // Remove off-screen obstacles
         }
     });
 
-    Phaser.Actions.IncX(cupcakes.getChildren(), -gameSpeed);
-    cupcakes.children.iterate(function (cupcake) {
+    cupcakes.getChildren().forEach(function (cupcake) {
+        cupcake.x -= gameSpeed;
         if (cupcake.x < -cupcake.width) {
             cupcake.destroy();
         }
@@ -160,8 +160,8 @@ function update() {
         cupcake.y += Math.sin(cupcake.x / 50) * 10; // Hovering effect
     });
 
-    Phaser.Actions.IncX(carrots.getChildren(), -gameSpeed);
-    carrots.children.iterate(function (carrot) {
+    carrots.getChildren().forEach(function (carrot) {
+        carrot.x -= gameSpeed;
         if (carrot.x < -carrot.width) {
             carrot.destroy();
         }
@@ -245,7 +245,6 @@ function generateCandyStick() {
     candyStick.displayHeight = height;
     candyStick.setOrigin(0, yPosition === 0 ? 0 : 1); // Adjust origin based on position
     candyStick.body.allowGravity = false; // Prevent gravity
-    candyStick.setVelocityX(-backgroundSpeed); // Move with the background
     candyStick.setImmovable(true); // Ensure candy stick is immovable
 }
 
