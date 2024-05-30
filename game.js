@@ -6,7 +6,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: true // Enable debug mode to see physics bodies
+            debug: false // Enable debug mode to see physics bodies
         }
     },
     scene: {
@@ -25,6 +25,7 @@ let scoreText;
 let lives = 3;
 let hearts = [];
 let obstacles;
+let clouds;
 let gameOverFlag = false;
 let background;
 let backgroundSpeed = 2;
@@ -36,6 +37,7 @@ let candyStickSpeed = 2.5; // Candy sticks move faster than the background
 let cupcakeCarrotSpeed = 3; // Cupcakes and carrots move faster than candy sticks
 let speedIncrementTimer;
 let spawnTimer;
+let cloudTimer;
 
 function preload() {
     this.load.image('background', 'assets/background.png'); // Ensure this path is correct
@@ -44,6 +46,7 @@ function preload() {
     this.load.image('carrot', 'assets/carrot.png');
     this.load.image('candy_stick', 'assets/candy_stick.png'); // New candy stick image
     this.load.image('heart', 'assets/heart.png'); // Heart image for lives
+    this.load.image('cloud01', 'assets/cloud01.png'); // Cloud image
 }
 
 function create() {
@@ -57,6 +60,7 @@ function create() {
     cupcakes = this.physics.add.group();
     carrots = this.physics.add.group();
     obstacles = this.physics.add.group();
+    clouds = this.physics.add.group();
 
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
 
@@ -125,6 +129,9 @@ function create() {
             generateCupcakeOrCarrot();
             generateCandyStick();
         }, Phaser.Math.Between(2000, 5000)); // Randomize between 2 to 5 seconds
+        cloudTimer = setInterval(() => {
+            generateCloud();
+        }, 10000); // Generate cloud every 10 seconds
     });
 
     restartButton.addEventListener('click', () => {
@@ -144,6 +151,9 @@ function create() {
             generateCupcakeOrCarrot();
             generateCandyStick();
         }, Phaser.Math.Between(2000, 5000)); // Randomize between 2 to 5 seconds
+        cloudTimer = setInterval(() => {
+            generateCloud();
+        }, 10000); // Generate cloud every 10 seconds
     });
 }
 
@@ -185,6 +195,13 @@ function update() {
             carrot.setDepth(5); // Ensure carrots are above candy sticks
         }
     });
+
+    clouds.getChildren().forEach(function (cloud) {
+        cloud.x -= cloud.speed;
+        if (cloud.x < -cloud.width) {
+            cloud.destroy();
+        }
+    });
 }
 
 function collectCupcake(player, cupcake) {
@@ -196,7 +213,7 @@ function collectCupcake(player, cupcake) {
 
 function hitCarrot(player, carrot) {
     carrot.disableBody(true, true);
-    displayScoreText(this, '-1', carrot.x, carrot.y);
+    displayScoreText(this, '-1 heart', carrot.x, carrot.y);
     lives -= 1;
     updateLivesDisplay(this);
     if (lives <= 0) {
@@ -217,6 +234,7 @@ function endGame(scene) {
     clearInterval(scoreTimer);
     clearInterval(speedIncrementTimer);
     clearInterval(spawnTimer);
+    clearInterval(cloudTimer);
     scene.physics.pause();
     player.setTint(0xff0000);
     gameOverText.setVisible(true);
@@ -241,6 +259,7 @@ function resetGame(scene) {
     obstacles.clear(true, true);
     cupcakes.clear(true, true);
     carrots.clear(true, true);
+    clouds.clear(true, true);
     gameOverText.setVisible(false);
     finalScoreText.setVisible(false);
 }
@@ -280,6 +299,14 @@ function generateCandyStick() {
     candyStick.setVelocityX(-candyStickSpeed); // Move horizontally
 }
 
+function generateCloud() {
+    let yPosition = Phaser.Math.Between(10, 50); // Randomize y position close to the top border
+    let cloud = clouds.create(800, yPosition, 'cloud01');
+    cloud.body.allowGravity = false; // Prevent gravity
+    cloud.setVelocityX(-Phaser.Math.Between(backgroundSpeed - 1, backgroundSpeed + 1)); // Randomize speed
+    cloud.setDepth(9); // Ensure clouds are above all other content but below the score and life text
+}
+
 function increaseSpeed() {
     gameSpeed += 0.1; // Gradually increase speed over time
     candyStickSpeed += 0.1; // Gradually increase candy stick speed
@@ -306,7 +333,7 @@ function updateLivesDisplay(scene) {
     hearts.forEach(heart => heart.destroy());
     hearts = [];
     for (let i = 0; i < lives; i++) {
-        let heart = scene.add.image(16 + i * 32, 64, 'heart');
+        let heart = scene.add.image(16 + scoreText.width + 16 + i * 32, 64, 'heart');
         heart.setScale(0.5);
         heart.setDepth(10);
         hearts.push(heart);
