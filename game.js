@@ -6,7 +6,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: false
+            debug: true // Enable debug mode to see physics bodies
         }
     },
     scene: {
@@ -147,7 +147,8 @@ function update() {
     obstacles.getChildren().forEach(function (obstacle) {
         obstacle.x -= backgroundSpeed; // Move with the background
         if (obstacle.x < -obstacle.width) {
-            obstacle.destroy(); // Remove off-screen obstacles
+            console.log('Obstacle out of bounds, destroying');
+            obstacles.remove(obstacle, true, true); // Properly remove from physics world and scene
         }
     });
 
@@ -246,7 +247,7 @@ function generateCandyStick() {
     candyStick.setOrigin(0, yPosition === 0 ? 0 : 1); // Adjust origin based on position
     candyStick.body.allowGravity = false; // Prevent gravity
     candyStick.setImmovable(true); // Ensure candy stick is immovable
-    candyStick.body.setVelocityX(-gameSpeed); // Move horizontally
+    candyStick.setVelocityX(-gameSpeed); // Move horizontally
 }
 
 function increaseSpeed() {
