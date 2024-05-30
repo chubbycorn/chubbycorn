@@ -157,8 +157,10 @@ function update() {
         if (cupcake.x < -cupcake.width) {
             cupcake.destroy();
         }
-        cupcake.setVelocityY(0); // Prevent falling
-        cupcake.y += Math.sin(cupcake.x / 50) * 10; // Hovering effect
+        if (cupcake.active) { // Check if cupcake is still active
+            cupcake.setVelocityY(0); // Prevent falling
+            cupcake.y += Math.sin(cupcake.x / 50) * 10; // Hovering effect
+        }
     });
 
     carrots.getChildren().forEach(function (carrot) {
@@ -166,8 +168,10 @@ function update() {
         if (carrot.x < -carrot.width) {
             carrot.destroy();
         }
-        carrot.setVelocityY(0); // Prevent falling
-        carrot.y += Math.sin(carrot.x / 50) * 10; // Hovering effect
+        if (carrot.active) { // Check if carrot is still active
+            carrot.setVelocityY(0); // Prevent falling
+            carrot.y += Math.sin(carrot.x / 50) * 10; // Hovering effect
+        }
     });
 }
 
