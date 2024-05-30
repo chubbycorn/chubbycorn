@@ -246,14 +246,16 @@ function generateCupcakeOrCarrot() {
 function generateCandyStick() {
     let height = Phaser.Math.Between(120, 360); // 20% to 60% of 600px height
     let yPosition = Phaser.Math.Between(0, 1); // 0 for top, 1 for bottom
-    let candyStick = obstacles.create(800, yPosition === 0 ? 0 : 600 - height, 'candy_stick');
-    
-    if (yPosition === 1) {
-        candyStick.setOrigin(0, 1); // Adjust origin for bottom
-        candyStick.setFlipY(true); // Flip the image for bottom
-    } else {
+    let candyStick;
+
+    if (yPosition === 0) {
+        candyStick = obstacles.create(800, 0, 'candy_stick'); // Top border
         candyStick.setOrigin(0, 0); // Adjust origin for top
         candyStick.setFlipY(false); // Ensure it is not flipped
+    } else {
+        candyStick = obstacles.create(800, 600, 'candy_stick'); // Bottom border
+        candyStick.setOrigin(0, 1); // Adjust origin for bottom
+        candyStick.setFlipY(true); // Flip the image for bottom
     }
 
     candyStick.displayHeight = height;
