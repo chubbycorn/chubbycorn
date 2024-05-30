@@ -32,6 +32,8 @@ let scoreTimer;
 let gameOverText;
 let finalScoreText;
 let gameSpeed = 2;
+let candyStickSpeed = 2.5; // Candy sticks move faster than the background
+let cupcakeCarrotSpeed = 3; // Cupcakes and carrots move faster than candy sticks
 let speedIncrementTimer;
 let spawnTimer;
 
@@ -69,6 +71,12 @@ function create() {
     this.physics.add.collider(player, cupcakes, collectCupcake, null, this);
     this.physics.add.collider(player, carrots, hitCarrot, null, this);
     this.physics.add.collider(player, obstacles, hitObstacle, null, this);
+
+    // Ensure score and lives counters are on the top layer
+    scoreText.setDepth(10);
+    livesText.setDepth(10);
+    gameOverText.setDepth(10);
+    finalScoreText.setDepth(10);
 
     // Check for player touching the floor
     this.physics.world.on('worldbounds', (body, up, down) => {
@@ -145,7 +153,7 @@ function update() {
     background.tilePositionX += backgroundSpeed; // Update background speed
 
     obstacles.getChildren().forEach(function (obstacle) {
-        obstacle.x -= backgroundSpeed; // Move with the background
+        obstacle.x -= candyStickSpeed; // Move slightly faster than the background
         if (obstacle.x < -obstacle.width) {
             console.log('Obstacle out of bounds, destroying');
             obstacles.remove(obstacle, true, true); // Properly remove from physics world and scene
@@ -153,24 +161,26 @@ function update() {
     });
 
     cupcakes.getChildren().forEach(function (cupcake) {
-        cupcake.x -= gameSpeed;
+        cupcake.x -= cupcakeCarrotSpeed; // Move faster than candy sticks
         if (cupcake.x < -cupcake.width) {
             cupcake.destroy();
         }
         if (cupcake.active) { // Check if cupcake is still active
             cupcake.setVelocityY(0); // Prevent falling
-            cupcake.y += Math.sin(cupcake.x / 50) * 10; // Hovering effect
+            cupcake.y += Math.sin(cupcake.x / 100) * 5; // Slower hovering effect
+            cupcake.setDepth(5); // Ensure cupcakes are above candy sticks
         }
     });
 
     carrots.getChildren().forEach(function (carrot) {
-        carrot.x -= gameSpeed;
+        carrot.x -= cupcakeCarrotSpeed; // Move faster than candy sticks
         if (carrot.x < -carrot.width) {
             carrot.destroy();
         }
         if (carrot.active) { // Check if carrot is still active
             carrot.setVelocityY(0); // Prevent falling
-            carrot.y += Math.sin(carrot.x / 50) * 10; // Hovering effect
+            carrot.y += Math.sin(carrot.x / 100) * 5; // Slower hovering effect
+            carrot.setDepth(5); // Ensure carrots are above candy sticks
         }
     });
 }
@@ -215,6 +225,8 @@ function resetGame(scene) {
     gameOverFlag = false;
     score = 0;
     gameSpeed = 2; // Reset game speed
+    candyStickSpeed = 2.5; // Reset candy stick speed
+    cupcakeCarrotSpeed = 3; // Reset cupcake and carrot speed
     backgroundSpeed = 2; // Reset background speed
     lives = 3;
     scoreText.setText('score: 0');
@@ -234,12 +246,12 @@ function generateCupcakeOrCarrot() {
         let cupcake = cupcakes.create(800, Phaser.Math.Between(50, 550), 'cupcake');
         cupcake.setScale(0.5); // Adjusting the scale to fit the game
         cupcake.body.allowGravity = false; // Prevent gravity
-        cupcake.setVelocityX(-gameSpeed); // Move horizontally
+        cupcake.setVelocityX(-cupcakeCarrotSpeed); // Move horizontally
     } else {
         let carrot = carrots.create(800, Phaser.Math.Between(50, 550), 'carrot');
         carrot.setScale(0.5); // Adjusting the scale to fit the game
         carrot.body.allowGravity = false; // Prevent gravity
-        carrot.setVelocityX(-gameSpeed); // Move horizontally
+        carrot.setVelocityX(-cupcakeCarrotSpeed); // Move horizontally
     }
 }
 
@@ -261,10 +273,12 @@ function generateCandyStick() {
     candyStick.displayHeight = height;
     candyStick.body.allowGravity = false; // Prevent gravity
     candyStick.setImmovable(true); // Ensure candy stick is immovable
-    candyStick.setVelocityX(-gameSpeed); // Move horizontally
+    candyStick.setVelocityX(-candyStickSpeed); // Move horizontally
 }
 
 function increaseSpeed() {
     gameSpeed += 0.1; // Gradually increase speed over time
+    candyStickSpeed += 0.1; // Gradually increase candy stick speed
+    cupcakeCarrotSpeed += 0.1; // Gradually increase cupcake and carrot speed
     backgroundSpeed += 0.1; // Gradually increase background speed
 }
