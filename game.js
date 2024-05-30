@@ -24,6 +24,7 @@ let score = 0;
 let scoreText;
 let lives = 3;
 let livesText;
+let hearts = [];
 let obstacles;
 let gameOverFlag = false;
 let background;
@@ -43,6 +44,7 @@ function preload() {
     this.load.image('cupcake', 'assets/cupcake.png');
     this.load.image('carrot', 'assets/carrot.png');
     this.load.image('candy_stick', 'assets/candy_stick.png'); // New candy stick image
+    this.load.image('heart', 'assets/heart.png'); // Heart image for lives
 }
 
 function create() {
@@ -58,7 +60,6 @@ function create() {
     obstacles = this.physics.add.group();
 
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
-    livesText = this.add.text(16, 50, 'lives: 3', { fontSize: '32px', fill: '#000' });
 
     gameOverText = this.add.text(400, 300, 'Game Over', { fontSize: '64px', fill: '#000' });
     gameOverText.setOrigin(0.5);
@@ -68,13 +69,20 @@ function create() {
     finalScoreText.setOrigin(0.5);
     finalScoreText.setVisible(false);
 
-    this.physics.add.collider(player, cupcakes, collectCupcake, null, this);
-    this.physics.add.collider(player, carrots, hitCarrot, null, this);
+    // Create hearts for lives
+    for (let i = 0; i < lives; i++) {
+        let heart = this.add.image(16 + i * 32, 64, 'heart');
+        heart.setScale(0.5);
+        heart.setDepth(10);
+        hearts.push(heart);
+    }
+
+    this.physics.add.overlap(player, cupcakes, collectCupcake, null, this);
+    this.physics.add.overlap(player, carrots, hitCarrot, null, this);
     this.physics.add.collider(player, obstacles, hitObstacle, null, this);
 
     // Ensure score and lives counters are on the top layer
     scoreText.setDepth(10);
-    livesText.setDepth(10);
     gameOverText.setDepth(10);
     finalScoreText.setDepth(10);
 
@@ -187,14 +195,16 @@ function update() {
 
 function collectCupcake(player, cupcake) {
     cupcake.disableBody(true, true);
+    displayScoreText(this, '+50', cupcake.x, cupcake.y);
     score += 50;
     scoreText.setText('score: ' + score);
 }
 
 function hitCarrot(player, carrot) {
     carrot.disableBody(true, true);
+    displayScoreText(this, '-1', carrot.x, carrot.y);
     lives -= 1;
-    livesText.setText('lives: ' + lives);
+    updateLivesDisplay();
     if (lives <= 0) {
         endGame(this);
     }
@@ -230,7 +240,7 @@ function resetGame(scene) {
     backgroundSpeed = 2; // Reset background speed
     lives = 3;
     scoreText.setText('score: 0');
-    livesText.setText('lives: 3');
+    updateLivesDisplay(); // Reset lives display
     player.clearTint();
     player.setPosition(100, 300);
     scene.physics.resume();
@@ -281,4 +291,30 @@ function increaseSpeed() {
     candyStickSpeed += 0.1; // Gradually increase candy stick speed
     cupcakeCarrotSpeed += 0.1; // Gradually increase cupcake and carrot speed
     backgroundSpeed += 0.1; // Gradually increase background speed
+}
+
+function displayScoreText(scene, text, x, y) {
+    let scoreText = scene.add.text(x, y, text, { fontSize: '32px', fill: '#fff' });
+    scoreText.setDepth(10);
+    scene.tweens.add({
+        targets: scoreText,
+        y: y - 50,
+        alpha: 0,
+        duration: 1000,
+        ease: 'Power1',
+        onComplete: () => {
+            scoreText.destroy();
+        }
+    });
+}
+
+function updateLivesDisplay() {
+    hearts.forEach(heart => heart.destroy());
+    hearts = [];
+    for (let i = 0; i < lives; i++) {
+        let heart = game.add.image(16 + i * 32, 64, 'heart');
+        heart.setScale(0.5);
+        heart.setDepth(10);
+        hearts.push(heart);
+    }
 }
