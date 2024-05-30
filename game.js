@@ -303,7 +303,8 @@ function generateCloud() {
     let yPosition = Phaser.Math.Between(10, 50); // Randomize y position close to the top border
     let cloud = clouds.create(800, yPosition, 'cloud01');
     cloud.body.allowGravity = false; // Prevent gravity
-    cloud.setVelocityX(-Phaser.Math.Between(backgroundSpeed - 1, backgroundSpeed + 1)); // Randomize speed
+    cloud.speed = Phaser.Math.Between(backgroundSpeed - 1, backgroundSpeed + 1); // Randomize speed
+    cloud.setVelocityX(-cloud.speed);
     cloud.setDepth(9); // Ensure clouds are above all other content but below the score and life text
 }
 
