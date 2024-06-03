@@ -104,12 +104,12 @@ function create() {
 
     startButton.style.position = 'absolute';
     startButton.style.left = '50%';
-    startButton.style.top = '50%';
+    startButton.style.top = '60%';
     startButton.style.transform = 'translate(-50%, -50%)';
 
     restartButton.style.position = 'absolute';
     restartButton.style.left = '50%';
-    restartButton.style.top = '50%';
+    restartButton.style.top = '60%';
     restartButton.style.transform = 'translate(-50%, -50%)';
     restartButton.style.display = 'none';
 
@@ -179,7 +179,7 @@ function update() {
         }
         if (cupcake.active) { // Check if cupcake is still active
             cupcake.setVelocityY(0); // Prevent falling
-            cupcake.y += Math.sin(cupcake.x / 100) * 5; // Slower hovering effect
+            cupcake.y += Math.sin(cupcake.x / 200) * 10; // Slower hovering effect
             cupcake.setDepth(5); // Ensure cupcakes are above candy sticks
         }
     });
@@ -191,7 +191,7 @@ function update() {
         }
         if (carrot.active) { // Check if carrot is still active
             carrot.setVelocityY(0); // Prevent falling
-            carrot.y += Math.sin(carrot.x / 100) * 5; // Slower hovering effect
+            carrot.y += Math.sin(carrot.x / 200) * 10; // Slower hovering effect
             carrot.setDepth(5); // Ensure carrots are above candy sticks
         }
     });
@@ -213,7 +213,8 @@ function collectCupcake(player, cupcake) {
 
 function hitCarrot(player, carrot) {
     carrot.disableBody(true, true);
-    displayScoreText(this, '-1 heart', carrot.x, carrot.y);
+    displayScoreText(this, '-1 ', carrot.x, carrot.y);
+    displayHeartImage(this, carrot.x, carrot.y);
     lives -= 1;
     updateLivesDisplay(this);
     if (lives <= 0) {
@@ -326,6 +327,22 @@ function displayScoreText(scene, text, x, y) {
         ease: 'Power1',
         onComplete: () => {
             scoreText.destroy();
+        }
+    });
+}
+
+function displayHeartImage(scene, x, y) {
+    let heart = scene.add.image(x + 30, y, 'heart');
+    heart.setScale(0.5);
+    heart.setDepth(10);
+    scene.tweens.add({
+        targets: heart,
+        y: y - 50,
+        alpha: 0,
+        duration: 1000,
+        ease: 'Power1',
+        onComplete: () => {
+            heart.destroy();
         }
     });
 }
