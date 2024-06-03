@@ -6,7 +6,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: false // Enable debug mode to see physics bodies
+            debug: false // Disable debug mode for production
         }
     },
     scene: {
