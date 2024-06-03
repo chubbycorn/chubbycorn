@@ -104,13 +104,13 @@ function create() {
 
     startButton.style.position = 'absolute';
     startButton.style.left = '50%';
-    startButton.style.top = '60%';
-    startButton.style.transform = 'translate(-50%, -50%)';
+    startButton.style.top = '50%';
+    startButton.style.transform = 'translate(-50%, -100%)';
 
     restartButton.style.position = 'absolute';
     restartButton.style.left = '50%';
-    restartButton.style.top = '60%';
-    restartButton.style.transform = 'translate(-50%, -50%)';
+    restartButton.style.top = '50%';
+    restartButton.style.transform = 'translate(-50%, -100%)';
     restartButton.style.display = 'none';
 
     startButton.addEventListener('click', () => {
@@ -179,7 +179,7 @@ function update() {
         }
         if (cupcake.active) { // Check if cupcake is still active
             cupcake.setVelocityY(0); // Prevent falling
-            cupcake.y += Math.sin(cupcake.x / 200) * 10; // Slower hovering effect
+            cupcake.y += Math.sin(cupcake.x / 400) * 5; // Slower and smaller hovering effect
             cupcake.setDepth(5); // Ensure cupcakes are above candy sticks
         }
     });
@@ -191,7 +191,7 @@ function update() {
         }
         if (carrot.active) { // Check if carrot is still active
             carrot.setVelocityY(0); // Prevent falling
-            carrot.y += Math.sin(carrot.x / 200) * 10; // Slower hovering effect
+            carrot.y += Math.sin(carrot.x / 400) * 5; // Slower and smaller hovering effect
             carrot.setDepth(5); // Ensure carrots are above candy sticks
         }
     });
@@ -214,7 +214,7 @@ function collectCupcake(player, cupcake) {
 function hitCarrot(player, carrot) {
     carrot.disableBody(true, true);
     displayScoreText(this, '-1 ', carrot.x, carrot.y);
-    displayHeartImage(this, carrot.x, carrot.y);
+    displayHeartImage(this, carrot.x + 35, carrot.y); // Adjusted position to align with text
     lives -= 1;
     updateLivesDisplay(this);
     if (lives <= 0) {
@@ -350,8 +350,9 @@ function displayHeartImage(scene, x, y) {
 function updateLivesDisplay(scene) {
     hearts.forEach(heart => heart.destroy());
     hearts = [];
+    let startX = scoreText.getBounds().x + scoreText.width + 20;
     for (let i = 0; i < lives; i++) {
-        let heart = scene.add.image(16 + scoreText.width + 16 + i * 32, 64, 'heart');
+        let heart = scene.add.image(startX + i * 32, 24, 'heart'); // Align with score text
         heart.setScale(0.5);
         heart.setDepth(10);
         hearts.push(heart);
