@@ -28,7 +28,7 @@ let score = 0;
 let scoreText;
 let lives = 3;
 let hearts = [];
-let obstacles;
+let obstacles = [];
 let clouds;
 let gameOverFlag = false;
 let background;
@@ -37,7 +37,6 @@ let scoreTimer;
 let gameOverText;
 let finalScoreText;
 let gameSpeed = 2;
-let candyStickSpeed = 2.5;
 let cupcakeCarrotSpeed = 3;
 let speedIncrementTimer;
 let spawnTimer;
@@ -48,7 +47,6 @@ function preload() {
     this.load.image('chubbycorn', 'assets/chubbycorn.png');
     this.load.image('cupcake', 'assets/cupcake.png');
     this.load.image('carrot', 'assets/carrot.png');
-    this.load.image('candy_stick', 'assets/candy_stick.png');
     this.load.image('heart', 'assets/heart.png');
     this.load.image('cloud01', 'assets/cloud01.png');
 }
@@ -63,7 +61,6 @@ function create() {
 
     cupcakes = this.physics.add.group();
     carrots = this.physics.add.group();
-    obstacles = this.physics.add.group();
     clouds = this.physics.add.group();
 
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' }).setScrollFactor(0);
@@ -80,7 +77,6 @@ function create() {
 
     this.physics.add.overlap(player, cupcakes, collectCupcake, null, this);
     this.physics.add.overlap(player, carrots, hitCarrot, null, this);
-    this.physics.add.collider(player, obstacles, hitObstacle, null, this);
 
     scoreText.setDepth(10);
     gameOverText.setDepth(10);
@@ -165,10 +161,9 @@ function update() {
 
     background.tilePositionX += backgroundSpeed;
 
-    obstacles.getChildren().forEach(function (obstacle) {
-        obstacle.x -= candyStickSpeed;
-        if (obstacle.x < -obstacle.width) {
-            obstacles.remove(obstacle, true, true);
+    obstacles.forEach(obstacle => {
+        if (obstacle.getBoundingClientRect().right < 0) {
+            obstacle.remove();
         }
     });
 
@@ -248,7 +243,6 @@ function resetGame(scene) {
     gameOverFlag = false;
     score = 0;
     gameSpeed = 2;
-    candyStickSpeed = 2.5;
     cupcakeCarrotSpeed = 3;
     backgroundSpeed = 2;
     lives = 3;
@@ -257,7 +251,8 @@ function resetGame(scene) {
     player.clearTint();
     player.setPosition(100, 300);
     scene.physics.resume();
-    obstacles.clear(true, true);
+    obstacles.forEach(obstacle => obstacle.remove());
+    obstacles = [];
     cupcakes.clear(true, true);
     carrots.clear(true, true);
     clouds.clear(true, true);
@@ -280,24 +275,21 @@ function generateCupcakeOrCarrot() {
 }
 
 function generateCandyStick() {
-    let height = Phaser.Math.Between(120, 360);
-    let yPosition = Phaser.Math.Between(0, 1);
-    let candyStick;
+    let height = Phaser.Math.Between(20, 60); // Percentage of screen height
+    let yPosition = Phaser.Math.Between(0, 1); // 0 for top, 1 for bottom
+    let obstacle = document.createElement('div');
+    obstacle.classList.add('obstacle');
+    obstacle.style.height = `${height}vh`; // Set height as a percentage of the viewport height
+    obstacle.style.animationDuration = `${candyStickSpeed * 5}s`; // Adjust animation speed
 
     if (yPosition === 0) {
-        candyStick = obstacles.create(800, 0, 'candy_stick');
-        candyStick.setOrigin(0, 0);
-        candyStick.setFlipY(false);
+        obstacle.style.top = '0';
     } else {
-        candyStick = obstacles.create(800, 600, 'candy_stick');
-        candyStick.setOrigin(0, 1);
-        candyStick.setFlipY(true);
+        obstacle.style.bottom = '0';
     }
 
-    candyStick.displayHeight = height;
-    candyStick.body.allowGravity = false;
-    candyStick.setImmovable(true);
-    candyStick.setVelocityX(-candyStickSpeed);
+    document.getElementById('obstaclesContainer').appendChild(obstacle);
+    obstacles.push(obstacle);
 }
 
 function generateCloud() {
